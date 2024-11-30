@@ -7,7 +7,7 @@ from zc import generate_zc_sequence
 
 
 class MyTestCase(unittest.TestCase):
-    def test_something(self):
+    def test_modulate(self):
         Nzc = 81
         zc = generate_zc_sequence(1, Nzc)
         x = ofdm_modulate(zc, 960)
