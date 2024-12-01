@@ -14,5 +14,9 @@ print("恢复后的信号：", x_recovered)
 
 
 x = np.array([0, 1, 2, 3, 4, 5])
-x = np.roll(x, 2)
-print(x)
+# x = np.roll(x, 2)
+# print(x)
+
+y = np.array([1,2,3,4,5, 6])
+
+print(x * y)

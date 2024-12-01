@@ -1,6 +1,6 @@
 import numpy as np
 
-from ofdm import ofdm_modulate
+from ofdm import ofdm_modulate, ofdm_demodulate
 from zc import generate_zc_sequence
 
 # # 生成Zadoff-Chu序列
@@ -28,6 +28,7 @@ from zc import generate_zc_sequence
 #     # print(x)
 #     return x
 
+# v0
 # # OFDM解调
 # def ofdm_demodulate(y, Nzc, N, fc, fs):
 #     Y = np.fft.fft(y, N)
@@ -38,21 +39,22 @@ from zc import generate_zc_sequence
 #     cir = np.fft.ifft(CFR)
 #     return cir
 
-# OFDM解调
-def ofdm_demodulate(y, Nzc, N, fc, fs):
-    Y = np.fft.fft(y, N)
-    nc = int(N * fc / fs)
-    CFR = np.zeros(N_prime, dtype=complex)
-    CFR1 = Y[380 + nc - hzc:380 + nc + hzc + 1] * zc.conj()
-    CFR[:hzc + 1] = CFR1[hzc:2 * hzc + 1]
-
-    CFR[N_prime - 2 * hzc - 1:N_prime - hzc - 1] = CFR1[hzc - 1::-1]
-    # print(CFR[N_prime - 2 * hzc - 1:N_prime - hzc - 1])
-    # print(CFR1[:hzc])
-    # print(CFR1[hzc - 1::-1])
-
-    cir = np.fft.ifft(CFR)
-    return cir
+# v1
+# # OFDM解调
+# def ofdm_demodulate(y, Nzc, N, fc, fs):
+#     Y = np.fft.fft(y, N)
+#     nc = int(N * fc / fs)
+#     CFR = np.zeros(N_prime, dtype=complex)
+#     CFR1 = Y[nc - hzc:nc + hzc + 1] * zc.conj()
+#     CFR[:hzc + 1] = CFR1[hzc:2 * hzc + 1]
+#
+#     CFR[N_prime - 2 * hzc - 1:N_prime - hzc - 1] = CFR1[hzc - 1::-1]
+#     # print(CFR[N_prime - 2 * hzc - 1:N_prime - hzc - 1])
+#     # print(CFR1[:hzc])
+#     # print(CFR1[hzc - 1::-1])
+#
+#     cir = np.fft.ifft(CFR)
+#     return cir
 
 # 计算距离
 def calculate_distance(cir_aa, cir_ab, cir_ba, cir_bb, fs, N, N_prime, fc, c):
@@ -94,8 +96,10 @@ if __name__ == "__main__":
 
     # OFDM解调
     hzc = (Nzc - 1) // 2
-    cir_aa = ofdm_demodulate(x, Nzc, N, fc, fs)
-    cir_ab = ofdm_demodulate(y, Nzc, N, fc, fs)
+    # cir_aa = ofdm_demodulate(x, Nzc, N, fc, fs)
+    # cir_ab = ofdm_demodulate(y, Nzc, N, fc, fs)
+    cir_aa = ofdm_demodulate(x, N, fc, fs, N_prime, zc)
+    cir_ab = ofdm_demodulate(y, N, fc, fs, N_prime, zc)
 
     # 模拟设备B发送信号
     x_b = ofdm_modulate(zc, N)
@@ -104,8 +108,10 @@ if __name__ == "__main__":
     y_b = np.roll(x_b, delay) + 0.1 * np.random.randn(N)
 
     # OFDM解调
-    cir_ba = ofdm_demodulate(y_b, Nzc, N, fc, fs)
-    cir_bb = ofdm_demodulate(x_b, Nzc, N, fc, fs)
+    # cir_ba = ofdm_demodulate(y_b, Nzc, N, fc, fs)
+    # cir_bb = ofdm_demodulate(x_b, Nzc, N, fc, fs)
+    cir_ba = ofdm_demodulate(y_b, N, fc, fs, N_prime, zc)
+    cir_bb = ofdm_demodulate(x_b, N, fc, fs, N_prime, zc)
 
     # 计算距离
     distance = calculate_distance(cir_aa, cir_ab, cir_ba, cir_bb, fs, N, N_prime, fc, c)
