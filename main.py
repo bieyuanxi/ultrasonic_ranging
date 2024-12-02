@@ -56,6 +56,24 @@ from zc import generate_zc_sequence
 #     cir = np.fft.ifft(CFR)
 #     return cir
 
+# # 计算距离
+# def calculate_distance(cir_aa, cir_ab, cir_ba, cir_bb, fs, N, N_prime, fc, c):
+#     m_aa = np.argmax(np.abs(cir_aa))
+#     m_ab = np.argmax(np.abs(cir_ab))
+#     m_ba = np.argmax(np.abs(cir_ba))
+#     m_bb = np.argmax(np.abs(cir_bb))
+#
+#     phi_aa = np.angle(cir_aa[m_aa])
+#     phi_ab = np.angle(cir_ab[m_ab])
+#     phi_ba = np.angle(cir_ba[m_ba])
+#     phi_bb = np.angle(cir_bb[m_bb])
+#
+#     m_sum = m_aa + m_bb - m_ab - m_ba
+#     phi_sum = phi_aa + phi_bb - phi_ab - phi_ba
+#
+#     distance = (c * N_prime / (4 * fs * N_prime)) * m_sum + (c / (2 * np.pi * fc)) * phi_sum
+#     return distance
+
 # 计算距离
 def calculate_distance(cir_aa, cir_ab, cir_ba, cir_bb, fs, N, N_prime, fc, c):
     m_aa = np.argmax(np.abs(cir_aa))
@@ -63,15 +81,11 @@ def calculate_distance(cir_aa, cir_ab, cir_ba, cir_bb, fs, N, N_prime, fc, c):
     m_ba = np.argmax(np.abs(cir_ba))
     m_bb = np.argmax(np.abs(cir_bb))
 
-    phi_aa = np.angle(cir_aa[m_aa])
-    phi_ab = np.angle(cir_ab[m_ab])
-    phi_ba = np.angle(cir_ba[m_ba])
-    phi_bb = np.angle(cir_bb[m_bb])
-
     m_sum = m_aa + m_bb - m_ab - m_ba
-    phi_sum = phi_aa + phi_bb - phi_ab - phi_ba
-
-    distance = (c * N_prime / (4 * fs * N_prime)) * m_sum + (c / (2 * np.pi * fc)) * phi_sum
+    daa = 0
+    dbb = 0
+    mod = 0 # TODO: how to process mod N_prime
+    distance = 0.5 * ((-1) * c * N * (m_sum + mod * N_prime) / (fs * N_prime) + daa + dbb)
     return distance
 
 # 主函数
@@ -92,7 +106,8 @@ if __name__ == "__main__":
 
     # 模拟设备B接收信号（添加一些延迟和噪声）
     delay = 100  # 示例延迟
-    y = np.roll(x, delay) + 0.1 * np.random.randn(N)
+    # y = np.roll(x, delay) + 0.1 * np.random.randn(N)
+    y = np.roll(x, delay)
 
     # OFDM解调
     hzc = (Nzc - 1) // 2
@@ -105,7 +120,8 @@ if __name__ == "__main__":
     x_b = ofdm_modulate(zc, N)
 
     # 模拟设备A接收信号（添加一些延迟和噪声）
-    y_b = np.roll(x_b, delay) + 0.1 * np.random.randn(N)
+    # y_b = np.roll(x_b, delay) + 0.1 * np.random.randn(N)
+    y_b = np.roll(x_b, delay)
 
     # OFDM解调
     # cir_ba = ofdm_demodulate(y_b, Nzc, N, fc, fs)
